@@ -43,10 +43,6 @@ public class AuthController {
     /**
      * Inicia sesión con email y contraseña.
      *
-     * Si las credenciales son válidas, devuelve un token JWT que el frontend
-     * debe guardar y usar en cada petición siguiente como: Authorization:
-     * Bearer <token>
-     *
      * Respuestas posibles: 200 OK → login exitoso, devuelve AuthResponse con
      * token 400 Bad Request → campos inválidos (email mal formado, password
      * vacío) 401 Unauthorized → credenciales incorrectas
@@ -70,10 +66,6 @@ public class AuthController {
      * Crea el usuario en la BD con la contraseña cifrada (BCrypt) y devuelve
      * directamente un token JWT para que el usuario pueda operar sin necesidad
      * de hacer login por separado.
-     *
-     * Respuestas posibles: 201 Created → usuario registrado exitosamente,
-     * devuelve token 400 Bad Request → campos inválidos o email ya registrado
-     * 404 Not Found → la empresa indicada no existe
      *
      * Ejemplo de body: { "nombre": "Sofía Gómez", "email":
      * "sofia@pyme-demo.cl", "password": "Admin1234!", "empresaId": 1, "rol":

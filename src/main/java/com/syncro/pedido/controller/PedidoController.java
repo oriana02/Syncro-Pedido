@@ -32,9 +32,6 @@ import com.syncro.pedido.model.EstadoPedido;
 /**
  * Controlador REST para la gestión de pedidos.
  *
- * Expone los endpoints que el frontend (Vite + React) consume a través del API
- * Gateway (puerto 8080).
- *
  * Todas las rutas requieren token JWT válido en el header: Authorization:
  * Bearer <token>
  *
@@ -62,14 +59,6 @@ public class PedidoController {
     /**
      * Crea un nuevo pedido en estado PENDIENTE.
      *
-     * El body debe incluir empresa, usuario, dirección y lista de productos. Se
-     * usa @Valid para que Spring valide automáticamente todos los campos
-     * obligatorios del request antes de llegar al servicio.
-     *
-     * Respuestas posibles: 201 Created → pedido creado exitosamente 400 Bad
-     * Request → campos inválidos o faltantes 401 Unauthorized → token JWT
-     * inválido o ausente 404 Not Found → empresa o usuario no existen
-     *
      * Ejemplo de body: { "empresaId": 1, "usuarioId": 2, "notas": "Entregar
      * antes de las 18:00", "direccion": { "calle": "Av. Providencia", "numero":
      * "1234", "ciudad": "Santiago", "region": "Región Metropolitana" },
@@ -90,10 +79,7 @@ public class PedidoController {
     // =========================================================================
     /**
      * Obtiene el detalle completo de un pedido por su ID. Incluye ítems,
-     * dirección, empresa, usuario e historial de estados.
-     *
-     * Respuestas posibles: 200 OK → pedido encontrado 401 Unauthorized → token
-     * JWT inválido o ausente 404 Not Found → no existe pedido con ese ID
+     * dirección, empresa, usuario e historial de estados
      *
      * Ejemplo: GET /pedidos/15
      */
@@ -117,7 +103,7 @@ public class PedidoController {
      * EN_PREPARACION → DESPACHADO | CANCELADO DESPACHADO → EN_RUTA EN_RUTA →
      * ENTREGADO
      *
-     * Si la transición no es válida devuelve 409 Conflict.
+     * Si la transición no es válida devuelve 409.
      *
      * Respuestas posibles: 200 OK → estado cambiado exitosamente 400 Bad
      * Request → body inválido 401 Unauthorized → token JWT inválido o ausente
@@ -143,11 +129,11 @@ public class PedidoController {
     // =========================================================================
     /**
      * Lista los pedidos de una empresa con filtros opcionales. Devuelve un
-     * resumen (sin ítems ni historial detallado) para no sobrecargar la
-     * respuesta cuando hay muchos pedidos.
+     * resumen de cada pedido (ID, fecha, estado, total) sin detalles de ítems
+     * ni dirección.
      *
-     * Parámetros opcionales (query params): - estado: filtra por estado exacto
-     * (ej: ?estado=CONFIRMADO) - desde: filtra desde una fecha (ej:
+     * Parámetros opcionales: - estado: filtra por estado exacto (ej:
+     * ?estado=CONFIRMADO) - desde: filtra desde una fecha (ej:
      * ?desde=2024-01-01T00:00:00) - hasta: filtra hasta una fecha (ej:
      * ?hasta=2024-12-31T23:59:59)
      *

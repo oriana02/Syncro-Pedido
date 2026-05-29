@@ -10,7 +10,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException; // Importación corregida
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.resource.NoResourceFoundException; // Importación añadida
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.security.authentication.BadCredentialsException; // Importación añadida
 
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +62,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ErrorResponse.of(HttpStatus.NOT_FOUND.value(), "Recurso no encontrado"));
+    }
+
+
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorResponse.of(HttpStatus.UNAUTHORIZED.value(), "Credenciales inválidas"));
     }
 
     // --- Manejo general (Cualquier otro error inesperado) ---

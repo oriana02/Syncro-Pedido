@@ -41,7 +41,7 @@ public class SecurityConfig {
                         "/auth/register",
                         "/empresas"
                 ).permitAll()
-                .anyRequest().permitAll()
+                .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

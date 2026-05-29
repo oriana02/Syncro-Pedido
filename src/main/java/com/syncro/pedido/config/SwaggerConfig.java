@@ -24,7 +24,7 @@ public class SwaggerConfig {
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName, new SecurityScheme()
                                 .name(securitySchemeName)
-                                .type(SecurityScheme.Type.HTTP) // Asegúrate de usar Type.HTTP
+                                .type(SecurityScheme.Type.HTTP)
                                 .scheme("bearer")
                                 .bearerFormat("JWT")));
     }
