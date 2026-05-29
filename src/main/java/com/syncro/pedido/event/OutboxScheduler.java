@@ -1,6 +1,5 @@
 package com.syncro.pedido.event;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.syncro.pedido.model.OutboxEvento;
 import com.syncro.pedido.repository.OutboxEventoRepository;
 import com.syncro.pedido.config.RabbitMQConfig;
@@ -8,15 +7,16 @@ import com.syncro.pedido.config.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
 @Slf4j
@@ -24,18 +24,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class OutboxScheduler {
 
     private final OutboxEventoRepository outboxRepository;
-
     private final RabbitTemplate rabbitTemplate;
-
-    private final ObjectMapper objectMapper;
 
     private static final int MAX_INTENTOS = 5;
 
-    @Scheduled(fixedDelay = 30000) // Cada 30 segundos
+    @Scheduled(fixedDelay = 30000)
     @Transactional
     public void procesarPendientes() {
-        List<OutboxEvento> pendientes
-                = outboxRepository.findByEnviadoFalseAndIntentosLessThan(MAX_INTENTOS);
+        List<OutboxEvento> pendientes =
+                outboxRepository.findByEnviadoFalseAndIntentosLessThan(MAX_INTENTOS);
 
         if (pendientes.isEmpty()) {
             return;
@@ -45,10 +42,16 @@ public class OutboxScheduler {
 
         for (OutboxEvento evento : pendientes) {
             try {
-                Object payload = objectMapper.readValue(
-                        evento.getPayload(), PedidoCreadoEvent.class);
+                MessageProperties props = new MessageProperties();
+                props.setContentType(MessageProperties.CONTENT_TYPE_JSON);
 
-                rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, "", payload);
+                Message message = new Message(
+                        evento.getPayload().getBytes(StandardCharsets.UTF_8),
+                        props
+                );
+
+                rabbitTemplate.send(RabbitMQConfig.EXCHANGE, "", message);
+
                 evento.setEnviado(true);
                 evento.setFechaEnviado(LocalDateTime.now());
                 log.info("Outbox ID={} enviado OK (intento {})",
@@ -57,7 +60,7 @@ public class OutboxScheduler {
             } catch (Exception e) {
                 evento.setIntentos(evento.getIntentos() + 1);
                 evento.setErrorMensaje(e.getMessage());
-                log.warn("Outbox ID={} falló intento {}/{}",
+                log.warn("Outbox ID={} fallo intento {}/{}",
                         evento.getId(), evento.getIntentos(), MAX_INTENTOS);
             }
             outboxRepository.save(evento);

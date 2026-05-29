@@ -35,8 +35,9 @@ import com.syncro.pedido.exception.PedidoNotFoundException;
 import com.syncro.pedido.exception.TransaccionEstadoInvalidaException;
 import com.syncro.pedido.model.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
@@ -50,8 +51,20 @@ public class PedidoService {
     private final UsuarioRepository usuarioRepository;
 
     private final OutboxEventoRepository outboxRepository;
-     
+
     private final ObjectMapper objectMapper;
+
+    public PedidoService(PedidoRepository pedidoRepository,
+            EmpresaRepository empresaRepository,
+            UsuarioRepository usuarioRepository,
+            OutboxEventoRepository outboxRepository,
+            ObjectMapper objectMapper) {
+        this.pedidoRepository = pedidoRepository;
+        this.empresaRepository = empresaRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.outboxRepository = outboxRepository;
+        this.objectMapper = objectMapper;
+    }
 
     private static final Map<EstadoPedido, Set<EstadoPedido>> TRANSICIONES_VALIDAS = Map.of(
             EstadoPedido.PENDIENTE, EnumSet.of(EstadoPedido.CONFIRMADO, EstadoPedido.CANCELADO),
@@ -224,7 +237,7 @@ public class PedidoService {
                         .fechaCreacion(LocalDateTime.now())
                         .build();
 
-                outboxRepository.save(outbox); 
+                outboxRepository.save(outbox);
 
             } catch (Exception e) {
                 log.error("Error serializando evento para outbox, pedido ID={}", pedidoId, e);
