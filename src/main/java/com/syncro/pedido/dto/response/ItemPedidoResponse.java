@@ -45,8 +45,8 @@ public class ItemPedidoResponse {
     private BigDecimal precioUnitario;
 
     /**
-     * Subtotal calculado = cantidad * precioUnitario. En Oracle es una columna
-     * VIRTUAL (calculada automáticamente).
+     * Subtotal calculado = cantidad * precioUnitario. Calculado en memoria por
+     * la entidad, no persistido en BD.
      */
     private BigDecimal subtotal;
 

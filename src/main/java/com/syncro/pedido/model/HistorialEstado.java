@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 public class HistorialEstado {
 
     /**
-     * Clave primaria generada por la secuencia de Oracle
+     * Clave primaria generada por AUTO_INCREMENT de MYSQL
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -18,7 +18,7 @@ import lombok.*;
 public class DireccionEntrega {
 
     /**
-     * Clave primaria generada por la secuencia de Oracle
+     * Clave primaria generada por AUTO_INCREMENT de MYSQL
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

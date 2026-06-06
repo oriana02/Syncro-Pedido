@@ -11,8 +11,6 @@ import com.syncro.pedido.model.Usuario;
 import com.syncro.pedido.repository.EmpresaRepository;
 import com.syncro.pedido.repository.UsuarioRepository;
 import com.syncro.pedido.security.JwtUtil;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;

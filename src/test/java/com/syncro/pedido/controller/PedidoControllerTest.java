@@ -109,8 +109,8 @@ class PedidoControllerTest {
     }
 
     @Test
-    @DisplayName("POST /pedidos - sin autenticación debe retornar 401")
-    void crearPedido_sinAutenticacion_retorna401() throws Exception {
+    @DisplayName("POST /pedidos - sin autenticación debe retornar 403")
+    void crearPedido_sinAutenticacion_retorna403() throws Exception {
         CrearPedidoRequest request = buildCrearPedidoRequest();
 
         mockMvc.perform(post("/pedidos")

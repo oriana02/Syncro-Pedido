@@ -17,6 +17,9 @@ class PedidoApplicationTests {
     @MockBean
     private ConnectionFactory connectionFactory;
 
+    @MockBean
+    private com.syncro.pedido.repository.OutboxEventoRepository outboxEventoRepository;
+
     @Test
     void contextLoads() {
     }

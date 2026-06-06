@@ -1,7 +1,5 @@
 package com.syncro.pedido.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.syncro.pedido.dto.request.EmpresaRequest;
 import com.syncro.pedido.dto.response.EmpresaResponse;
 import com.syncro.pedido.model.Empresa;
@@ -11,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
-
 
 @Service
 @RequiredArgsConstructor
