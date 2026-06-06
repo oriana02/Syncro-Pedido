@@ -1,7 +1,6 @@
 package com.syncro.pedido.event;
 
 import java.math.BigDecimal;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,11 +14,18 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class PedidoCreadoEvent {
-
     private Long pedidoId;
     private Long empresaId;
-
-    // Los items son lo más importante para inventario: SKU y cantidad a descontar
+    private String destinatarioNombre;
+    private String destinatarioEmail;
+    private String destinatarioTel;
+    private String direccionCalle;
+    private String direccionNumero;
+    private String direccionDepto;
+    private String direccionCiudad;
+    private String direccionRegion;
+    private String direccionPais;
+    private String codigoPostal;
     private List<ItemEvento> items;
 
     @Getter
@@ -28,10 +34,8 @@ public class PedidoCreadoEvent {
     @AllArgsConstructor
     @Builder
     public static class ItemEvento {
-
         private String sku;
         private Integer cantidad;
         private BigDecimal precioUnitario;
     }
-
 }
