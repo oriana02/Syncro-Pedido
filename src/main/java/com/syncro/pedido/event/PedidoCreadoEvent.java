@@ -35,6 +35,7 @@ public class PedidoCreadoEvent {
     @Builder
     public static class ItemEvento {
         private String sku;
+        private String nombre;
         private Integer cantidad;
         private BigDecimal precioUnitario;
     }
