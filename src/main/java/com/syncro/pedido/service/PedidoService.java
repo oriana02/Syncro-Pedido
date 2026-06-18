@@ -229,6 +229,7 @@ public class PedidoService {
                     .items(pedido.getItems().stream()
                             .map(item -> PedidoCreadoEvent.ItemEvento.builder()
                             .sku(item.getSku())
+                            .nombre(item.getNombre())
                             .cantidad(item.getCantidad())
                             .precioUnitario(item.getPrecioUnitario())
                             .build())
