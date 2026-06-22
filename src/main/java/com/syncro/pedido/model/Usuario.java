@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.io.Serializable;
 
 /**
  * Representa a los operadores de una empresa que usan Syncro. Implementa
@@ -22,7 +23,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Usuario implements UserDetails {
+public class Usuario implements UserDetails, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Clave primaria generada por la secuencia de MYSQL
@@ -127,7 +130,7 @@ public class Usuario implements UserDetails {
      */
     @Override
     public boolean isEnabled() {
-        return activo;
+        return isAccountNonLocked();
     }
 
 }

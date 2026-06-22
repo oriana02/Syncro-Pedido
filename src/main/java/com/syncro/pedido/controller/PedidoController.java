@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.syncro.pedido.dto.response.PedidoResumenResponse;
 import com.syncro.pedido.model.EstadoPedido;
 
+
 /**
  * Controlador REST para la gestión de pedidos.
  *
@@ -53,9 +54,6 @@ public class PedidoController {
         this.pedidoService = pedidoService;
     }
 
-    // =========================================================================
-    // POST /pedidos
-    // =========================================================================
     /**
      * Crea un nuevo pedido en estado PENDIENTE.
      *
@@ -74,9 +72,6 @@ public class PedidoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // =========================================================================
-    // GET /pedidos/{id}
-    // =========================================================================
     /**
      * Obtiene el detalle completo de un pedido por su ID. Incluye ítems,
      * dirección, empresa, usuario e historial de estados
@@ -92,19 +87,11 @@ public class PedidoController {
         return ResponseEntity.ok(response);
     }
 
-    // =========================================================================
-    // PATCH /pedidos/{id}/estado
-    // =========================================================================
     /**
      * Cambia el estado de un pedido existente.
      *
-     * Solo acepta transiciones válidas según las reglas de negocio: PENDIENTE →
-     * CONFIRMADO | CANCELADO CONFIRMADO → EN_PREPARACION | CANCELADO
-     * EN_PREPARACION → DESPACHADO | CANCELADO DESPACHADO → EN_RUTA EN_RUTA →
-     * ENTREGADO
-     *
-     * Si la transición no es válida devuelve 409.
-     *
+     * Solo acepta transiciones válidas según las reglas de negocio.
+     * 
      * Respuestas posibles: 200 OK → estado cambiado exitosamente 400 Bad
      * Request → body inválido 401 Unauthorized → token JWT inválido o ausente
      * 404 Not Found → no existe pedido con ese ID 409 Conflict → transición de
@@ -124,9 +111,7 @@ public class PedidoController {
         return ResponseEntity.ok(response);
     }
 
-    // =========================================================================
-    // GET /pedidos/historial/{empresaId}
-    // =========================================================================
+
     /**
      * Lista los pedidos de una empresa con filtros opcionales. Devuelve un
      * resumen de cada pedido (ID, fecha, estado, total) sin detalles de ítems

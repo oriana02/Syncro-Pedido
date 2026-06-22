@@ -2,9 +2,8 @@ package com.syncro.pedido.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
-
-
 
 /**
  * Representa a las PYMEs que usan la plataforma Syncro. Una empresa puede tener
@@ -17,7 +16,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Empresa {
+public class Empresa implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Clave primaria generada por la secuencia de MYSQL
