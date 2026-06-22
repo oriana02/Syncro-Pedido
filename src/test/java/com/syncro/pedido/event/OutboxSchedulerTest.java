@@ -14,6 +14,7 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -21,9 +22,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class OutboxSchedulerTest {
 
-    @Mock OutboxEventoRepository outboxRepository;
-    @Mock RabbitTemplate rabbitTemplate;
-    @InjectMocks OutboxScheduler scheduler;
+    @Mock
+    OutboxEventoRepository outboxRepository;
+    @Mock
+    RabbitTemplate rabbitTemplate;
+    @InjectMocks
+    OutboxScheduler scheduler;
 
     private OutboxEvento evento;
 
@@ -40,7 +44,7 @@ class OutboxSchedulerTest {
     @DisplayName("procesarPendientes - envia mensaje y marca como enviado")
     void procesarPendientes_enviaOk() {
         when(outboxRepository.findByEnviadoFalseAndIntentosLessThan(5))
-            .thenReturn(List.of(evento));
+                .thenReturn(List.of(evento));
 
         scheduler.procesarPendientes();
 
@@ -53,7 +57,7 @@ class OutboxSchedulerTest {
     @DisplayName("procesarPendientes - sin pendientes no hace nada")
     void procesarPendientes_sinPendientes() {
         when(outboxRepository.findByEnviadoFalseAndIntentosLessThan(5))
-            .thenReturn(List.of());
+                .thenReturn(List.of());
 
         scheduler.procesarPendientes();
 
@@ -65,9 +69,9 @@ class OutboxSchedulerTest {
     @DisplayName("procesarPendientes - si RabbitMQ falla incrementa intentos")
     void procesarPendientes_falloRabbit() {
         when(outboxRepository.findByEnviadoFalseAndIntentosLessThan(5))
-            .thenReturn(List.of(evento));
+                .thenReturn(List.of(evento));
         doThrow(new AmqpException("RabbitMQ caido"))
-            .when(rabbitTemplate).send(anyString(), anyString(), any(Message.class));
+                .when(rabbitTemplate).send(anyString(), anyString(), any(Message.class));
 
         scheduler.procesarPendientes();
 
@@ -80,7 +84,9 @@ class OutboxSchedulerTest {
     @Test
     @DisplayName("enviarConCircuitBreaker - fallback loguea error sin lanzar excepcion")
     void fallbackEnvio_noLanzaExcepcion() {
-        Message message = new Message(new byte[0]);
-        scheduler.fallbackEnvio(message, new RuntimeException("Conexion rechazada"));
+        assertThatCode(() -> scheduler.fallbackEnvio(new RuntimeException("Conexion rechazada")))
+                .doesNotThrowAnyException();
+
+        verifyNoInteractions(rabbitTemplate, outboxRepository);
     }
 }

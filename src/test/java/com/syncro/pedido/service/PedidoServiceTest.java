@@ -12,9 +12,7 @@ import com.syncro.pedido.exception.TransaccionEstadoInvalidaException;
 import com.syncro.pedido.model.DireccionEntrega;
 import com.syncro.pedido.model.Empresa;
 import com.syncro.pedido.model.EstadoPedido;
-import com.syncro.pedido.model.HistorialEstado;
 import com.syncro.pedido.model.ItemPedido;
-import com.syncro.pedido.model.OutboxEvento;
 import com.syncro.pedido.model.Pedido;
 import com.syncro.pedido.model.Usuario;
 import com.syncro.pedido.model.Rol;
@@ -44,11 +42,16 @@ import static org.mockito.Mockito.*;
 @DisplayName("PedidoService - Tests Unitarios")
 class PedidoServiceTest {
 
-    @Mock private PedidoRepository pedidoRepository;
-    @Mock private EmpresaRepository empresaRepository;
-    @Mock private UsuarioRepository usuarioRepository;
-    @Mock private OutboxEventoRepository outboxRepository;
-    @Mock private ObjectMapper objectMapper;
+    @Mock
+    private PedidoRepository pedidoRepository;
+    @Mock
+    private EmpresaRepository empresaRepository;
+    @Mock
+    private UsuarioRepository usuarioRepository;
+    @Mock
+    private OutboxEventoRepository outboxRepository;
+    @Mock
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private PedidoService pedidoService;

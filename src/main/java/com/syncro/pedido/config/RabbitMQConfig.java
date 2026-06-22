@@ -6,6 +6,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
 public class RabbitMQConfig {
@@ -14,9 +16,11 @@ public class RabbitMQConfig {
     public static final String COLA_INVENTARIO = "inventario.sincronizar";
     public static final String COLA_ENVIOS = "envio.generar";
 
+    private static final Logger logger = LoggerFactory.getLogger(RabbitMQConfig.class);
+
     // El exchange tipo Fanout distribuye el mensaje a TODAS las colas enlazadas
     @Bean
-    public FanoutExchange exchange() {
+    public FanoutExchange pedidosExchange() {
         return new FanoutExchange(EXCHANGE);
     }
 
@@ -34,13 +38,13 @@ public class RabbitMQConfig {
 
     // Enlazar cada cola al exchange
     @Bean
-    public Binding bindingInventario(Queue colaInventario, FanoutExchange exchange) {
-        return BindingBuilder.bind(colaInventario).to(exchange);
+    public Binding bindingInventario(Queue colaInventario, FanoutExchange pedidosExchange) {
+        return BindingBuilder.bind(colaInventario).to(pedidosExchange);
     }
 
     @Bean
-    public Binding bindingEnvios(Queue colaEnvios, FanoutExchange exchange) {
-        return BindingBuilder.bind(colaEnvios).to(exchange);
+    public Binding bindingEnvios(Queue colaEnvios, FanoutExchange pedidosExchange) {
+        return BindingBuilder.bind(colaEnvios).to(pedidosExchange);
     }
 
     // Convertidor JSON — serializa el objeto Java a JSON automáticamente
@@ -58,7 +62,7 @@ public class RabbitMQConfig {
         template.setConfirmCallback((correlationData, ack, cause) -> {
             if (!ack) {
                 
-                System.err.println("Mensaje no confirmado: " + cause);
+                logger.info("Mensaje no confirmado: " + cause);
             }
         });
         return template;
