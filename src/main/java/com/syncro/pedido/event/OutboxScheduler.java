@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,8 +32,8 @@ public class OutboxScheduler {
     @Scheduled(fixedDelay = 30000)
     @Transactional
     public void procesarPendientes() {
-        List<OutboxEvento> pendientes =
-                outboxRepository.findByEnviadoFalseAndIntentosLessThan(MAX_INTENTOS);
+        List<OutboxEvento> pendientes
+                = outboxRepository.findByEnviadoFalseAndIntentosLessThan(MAX_INTENTOS);
 
         if (pendientes.isEmpty()) {
             return;
@@ -65,5 +66,14 @@ public class OutboxScheduler {
             }
             outboxRepository.save(evento);
         }
+    }
+
+    @CircuitBreaker(name = "rabbitmq", fallbackMethod = "fallbackEnvio")
+    public void enviarConCircuitBreaker(Message message) {
+        rabbitTemplate.send(RabbitMQConfig.EXCHANGE, "", message);
+    }
+
+    public void fallbackEnvio(Throwable t) {
+        log.error("[CircuitBreaker] RabbitMQ no disponible: {}. Outbox reintentara.", t.getMessage());
     }
 }
