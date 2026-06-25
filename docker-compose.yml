@@ -1,0 +1,111 @@
+version: "3.9"
+
+services:
+  # ──────────────────────────────────────────────
+  #  Base de datos MySQL
+  # ──────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: syncro-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: syncro_pedidos
+      MYSQL_USER: ${DB_USERNAME:-syncro}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-syncro123}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-p${DB_ROOT_PASSWORD:-root}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - syncro-net
+
+  # ──────────────────────────────────────────────
+  #  Message Broker RabbitMQ
+  # ──────────────────────────────────────────────
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: syncro-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/}
+    ports:
+      - "5672:5672" # AMQP
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - syncro-net
+
+  # ──────────────────────────────────────────────
+  #  Microservicio de Pedidos
+  # ──────────────────────────────────────────────
+  ms-pedidos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: syncro-ms-pedidos
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      # Base de datos
+      DB_URL: jdbc:mysql://mysql:3306/syncro_pedidos?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_USERNAME: ${DB_USERNAME:-syncro}
+      DB_PASSWORD: ${DB_PASSWORD:-syncro123}
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-syncro-secret-key-produccion-minimo-32-chars!!}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      # RabbitMQ
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - syncro-net
+
+# ──────────────────────────────────────────────
+#  Volúmenes persistentes
+# ──────────────────────────────────────────────
+volumes:
+  mysql_data:
+  rabbitmq_data:
+
+# ──────────────────────────────────────────────
+#  Red interna
+# ──────────────────────────────────────────────
+networks:
+  syncro-net:
+    driver: bridge
